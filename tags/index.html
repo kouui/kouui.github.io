@@ -432,6 +432,26 @@
 
 
 
+  <script>
+  if (CONFIG.page.isPost) {
+    wpac_init = window.wpac_init || [];
+    wpac_init.push({
+      widget: 'Rating',
+      id    : ,
+      el    : 'wpac-rating',
+      color : 'fc6423'
+    });
+    (function() {
+      if ('WIDGETPACK_LOADED' in window) return;
+      WIDGETPACK_LOADED = true;
+      var mc = document.createElement('script');
+      mc.type = 'text/javascript';
+      mc.async = true;
+      mc.src = '//embed.widgetpack.com/widget.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(mc, s.nextSibling);
+    })();
+  }
+  </script>
 
   
 <script src="/js/local-search.js"></script>
@@ -460,11 +480,11 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
     var gitalk = new Gitalk({
       clientID    : '158e31ec1cc02e09ca04',
       clientSecret: 'ebe1a7c7e835c7fa2ce216a2642dbf5b657eaa53',
-      repo        : 'kouui.github.io',
+      repo        : 'gitalk-hexo-comment',
       owner       : 'kouui',
       admin       : ['kouui'],
       id          : 'f47af1d1eda4d807b02bba32be15120b',
-        language: 'en | es-ES | zh-CN | zh-TW',
+        language: 'en,zh-CN',
       distractionFreeMode: true
     });
     gitalk.render('gitalk-container');
