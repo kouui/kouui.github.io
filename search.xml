@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>init-gitalk</title>
+    <url>/2020/12/12/init-gitalk/</url>
+    <content><![CDATA[<p>let’s initialize comment functionality with gitalk!</p>
+]]></content>
+      <categories>
+        <category>test</category>
+      </categories>
+      <tags>
+        <tag>test</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Hello World</title>
     <url>/2020/12/12/hello-world/</url>
     <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
@@ -22,15 +34,75 @@
       </tags>
   </entry>
   <entry>
-    <title>init-gitalk</title>
-    <url>/2020/12/12/init-gitalk/</url>
-    <content><![CDATA[<p>let’s initialize comment functionality with gitalk!</p>
+    <title>xlwings with Excel in MacOS. I. working with Excel Macro</title>
+    <url>/2021/05/07/xlwings.1/</url>
+    <content><![CDATA[<hr>
+<p>As a widely used file format to store (non-large scale) data, Excel has its own advantages such as <strong>readability</strong>, <strong>quick access</strong> and <strong>light weight</strong>.</p>
+<p>In Python, there are various package to manipulate excel data:</p>
+<ul>
+<li><code>Pandas</code></li>
+<li><code>xlrd</code></li>
+<li><code>openpyxl</code></li>
+<li><code>xlwings</code></li>
+</ul>
+<p>Among the above packages, <code>Pandas</code> is the one most easy to use. With one single line of code you are able to convert the data to a dataframe, <strong>only in case of your excel file is highly formatted</strong>.</p>
+<p><code>xlrd</code> and <code>openpyxl</code> are very similar, which provide an interface to access excel file with <code>.xls</code> and <code>.xlsx</code> extension, respectively.</p>
+<p>With <code>xlwings</code>, you are able to open both <code>.xls</code> and <code>.xlsx</code> files. The most promise feature of <code>xlwings</code> is that you are able to run python code as excel Macro (like VBA), which makes it friendly to excel users.</p>
+<p>There are many articles introducing how to integrate <code>xlwings</code> with Windows. Here I recorded how I make <code>xlwings</code> to work with the excel in my MacOS.</p>
+<hr>
+<h2 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h2><p>I use <code>Conda</code> for environment management. Any other module such as <code>pyenv</code> should work in a similar way.</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ conda create -n xlwings-py37 python=3.7</span><br><span class="line">$ conda activate xlwings-py37</span><br><span class="line">$ pip install xlwings</span><br></pre></td></tr></table></figure>
+
+<p>then go to our test folder</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> /path/to/your/folder</span><br><span class="line">$ xlwings quickstart mymod</span><br><span class="line">$ <span class="built_in">cd</span> mymod</span><br><span class="line">$ ls</span><br><span class="line">mymod.py mymod.xlsm</span><br></pre></td></tr></table></figure>
+
+<p>the <code>mymod.xlsm</code> folder has nothing different from you excel file, except that</p>
+<ul>
+<li>Macro is enabled</li>
+<li>predefined VBA code in the Macro editor (in Excel: <code>Tools</code> -&gt; <code>Macro</code> -&gt; <code>Macro editor</code>)</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Sub SampleCall()</span><br><span class="line">    mymodule &#x3D; Left(ThisWorkbook.name, (InStrRev(ThisWorkbook.name, &quot;.&quot;, -1, vbTextCompare) - 1))</span><br><span class="line">    RunPython &quot;import &quot; &amp; mymodule &amp; &quot;;&quot; &amp; mymodule &amp; &quot;.main()&quot;</span><br><span class="line">End Sub</span><br></pre></td></tr></table></figure>
+
+<p><code>mymod.py</code> is our library. function defined in <code>mymod.py</code> could be called from the VBA in <code>mymod.xlsm</code> by the <code>RunPython</code> command.</p>
+<p>To make <code>RunPython</code> work,</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">$ xlwings runpython install</span><br></pre></td></tr></table></figure>
+
+<p>Now our VBA knows how to run python code in VBA, we still need to import <code>xlwings</code> as a VBA extension by clicking <code>File</code> &gt; <code>Import File...</code> in the VBA editor, and then import <code>xlwings.bas</code> file.<br><code>xlwings.bas</code> is located in the directory of <code>xlwings</code> package, in my case, is</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#39;&#x2F;Path&#x2F;to&#x2F;miniconda3&#x2F;envs&#x2F;xlwings-py37&#x2F;lib&#x2F;python3.7&#x2F;site-packages&#x2F;xlwings&#x2F;xlwings.bas&#39;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="Configuration"><a href="#Configuration" class="headerlink" title="Configuration"></a>Configuration</h2><p>There is one more step before we run the VBA code. That is to let Excel know which python interpreter we’d like to use when processing <code>xlwings</code> in VBA.</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ nano ~/Library/Containers/com.microsoft.Excel/Data/xlwings.conf</span><br></pre></td></tr></table></figure>
+
+<p>and paste the following setup</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&quot;INTERPRETER_WIN&quot;,&quot;&quot;</span><br><span class="line">&quot;INTERPRETER_MAC&quot;,&quot;&#x2F;path&#x2F;to&#x2F;miniconda3&#x2F;envs&#x2F;xlwings-py37&#x2F;bin&#x2F;python&quot;</span><br><span class="line">&quot;PYTHONPATH&quot;,&quot;&quot;</span><br><span class="line">&quot;CONDA PATH&quot;,&quot;&quot;</span><br><span class="line">&quot;CONDA ENV&quot;,&quot;&quot;</span><br><span class="line">&quot;UDF MODULES&quot;,&quot;&quot;</span><br><span class="line">&quot;DEBUG UDFS&quot;,&quot;&quot;</span><br><span class="line">&quot;USE UDF SERVER&quot;,&quot;&quot;</span><br><span class="line">&quot;SHOW CONSOLE&quot;,&quot;&quot;</span><br><span class="line">&quot;ONEDRIVE_WIN&quot;,&quot;&quot;</span><br><span class="line">&quot;ONEDRIVE_MAC&quot;,&quot;&quot;</span><br></pre></td></tr></table></figure>
+
+<p>In case of your library <code>mymod.py</code> not located in the same directory, you need to add the folder of your <code>mymod.py</code> to <code>PYTHONOATH</code> variable.</p>
+<hr>
+<h2 id="Try"><a href="#Try" class="headerlink" title="Try"></a>Try</h2><p>Then we are ready to execute sample VBA code.</p>
+<p>the python function <code>main()</code> in <code>mymod.py</code> is</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> xlwings <span class="keyword">as</span> xw</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span>():</span></span><br><span class="line">    wb = xw.Book.caller()</span><br><span class="line">    sheet = wb.sheets[<span class="number">0</span>]</span><br><span class="line">    <span class="keyword">if</span> sheet[<span class="string">&quot;A1&quot;</span>].value == <span class="string">&quot;Hello xlwings!&quot;</span>:</span><br><span class="line">        sheet[<span class="string">&quot;A1&quot;</span>].value = <span class="string">&quot;Bye xlwings!&quot;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        sheet[<span class="string">&quot;A1&quot;</span>].value = <span class="string">&quot;Hello xlwings!&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>Therefore, In the Macro editor, click <code>Run</code> button and select to execute <code>SampleCall()</code>, we will see the <code>A1</code> cell in the first sheet in <code>mymod.xlsm</code> switches between <code>Hello xlwings</code> and <code>Bye xlwings</code>.</p>
+<p>This is how we run python function as Macro in an excel file. </p>
+<hr>
+<p>Macro is good for a single excel file. In order to process large number of excel files –&gt; To Be Continued.</p>
+<hr>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://docs.xlwings.org/en/v0.7.1/vba.html">VBA: Calling Python from Excel</a></li>
+<li><a href="https://github.com/xlwings/xlwings">Github : xlwings</a></li>
+<li><a href="https://www.youtube.com/watch?v=uFJ8wpgoq_E">Youtube : Automate Excel with Python and xlwings Part 2: Run Python Function in Excel</a></li>
+</ul>
 ]]></content>
       <categories>
-        <category>test</category>
+        <category>python</category>
+        <category>MacOS</category>
       </categories>
       <tags>
-        <tag>test</tag>
+        <tag>python</tag>
+        <tag>xlwings</tag>
+        <tag>MacOS</tag>
+        <tag>excel</tag>
       </tags>
   </entry>
 </search>
